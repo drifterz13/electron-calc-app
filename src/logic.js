@@ -17,11 +17,7 @@ inputB.addEventListener('change', function() {
 })
 
 
-ipcRenderer.on('reset', (event, arg) => {
-  if (arg === 'RESET') {
-    reset()
-  }
-})
+ipcRenderer.on('reset', () => reset())
 
 document.getElementById('plus').addEventListener('click', function(event) {
   operation = event.target.id
@@ -90,6 +86,10 @@ document.getElementById('load').addEventListener('click', () => {
   } catch (err) {
     alert('Something went wrong!')
   }
+})
+
+document.getElementById('cloud-save').addEventListener('change', function() {
+  console.log('Checked: ', this.checked)
 })
 
 function sum(x, y) {

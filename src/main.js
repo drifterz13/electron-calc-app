@@ -21,7 +21,7 @@ require('electron-reload')('src')
           {label: 'Load File'},
           {
             label: 'Reset', click() {
-              win.webContents.send('reset', 'RESET')
+              win.webContents.send('reset')
             }
           },
 
