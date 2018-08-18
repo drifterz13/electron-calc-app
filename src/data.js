@@ -21,7 +21,7 @@ function createUi(datas) {
   datas.forEach(el => {
     let link = document.createElement('a')
     link.setAttribute('class', 'list-group-item list-group-item-action')
-    link.setAttribute('style', 'cursor: pointer')
+    link.setAttribute('style', 'cursor: pointer; display: block')
     link.addEventListener('click', e => getDataId(e))
     link.appendChild(document.createTextNode(el._id))
     list.appendChild(link)

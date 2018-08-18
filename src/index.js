@@ -69,7 +69,7 @@ document.getElementById('divide').addEventListener('click', function() {
 })
 
 document.getElementById('pow').addEventListener('click', function() { 
-  event.target.id
+  operation = event.target.id
   setResult(pow(a, b))
 })
 
@@ -166,6 +166,7 @@ function reset() {
   document.getElementById('pow').blur()
   document.getElementById('load').blur()
   document.getElementById('save').blur()
+  isCloudSave = false
 }
 
 function setLoadFile(data) {
