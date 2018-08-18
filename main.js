@@ -68,6 +68,11 @@ require('electron-reload')('src')
               win2.show()
               // win2.webContents.openDevTools()
             }
+          },
+          { 
+            label: 'Logout', click() {
+              win.webContents.send('log-out')
+            }
           }
         ]
       }

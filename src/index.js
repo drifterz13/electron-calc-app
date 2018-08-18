@@ -29,6 +29,11 @@ ipcRenderer.on('logged-in', (event, arg) => {
   document.getElementById('user').innerText = arg.username
 })
 
+ipcRenderer.on('log-out', () => {
+  reset()
+  document.getElementById('user').innerText = 'anonymous'
+})
+
 ipcRenderer.on('calc-data-id', (event, id) => {
   axios.get(loadByIdUrl + id).then(({data}) => {
     const { firstVariable, secondVariable } = data
