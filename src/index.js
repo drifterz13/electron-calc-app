@@ -1,12 +1,17 @@
 const {ipcRenderer} = require('electron')
 const {dialog} = require('electron').remote
 const fs = require('fs')
+const axios = require('axios')
 
-let operation;
-let a, b;
+let a, b, operation, loadedData
+let isCloudSave = false
 
 const inputA = document.getElementById('a')
 const inputB = document.getElementById('b')
+
+let saveURL = 'https://i0iedy2914.execute-api.us-east-1.amazonaws.com/dev/data'
+let loadURL = 'https://i0iedy2914.execute-api.us-east-1.amazonaws.com/dev/datas'
+let loadByIdUrl = 'https://i0iedy2914.execute-api.us-east-1.amazonaws.com/dev/data/'
 
 inputA.addEventListener('change', function() {
   a = +inputA.value
@@ -18,6 +23,25 @@ inputB.addEventListener('change', function() {
 
 
 ipcRenderer.on('reset', () => reset())
+
+ipcRenderer.on('logged-in', (event, arg) => {
+  reset()
+  document.getElementById('user').innerText = arg.username
+})
+
+ipcRenderer.on('calc-data-id', (event, id) => {
+  axios.get(loadByIdUrl + id).then(({data}) => {
+    const { firstVariable, secondVariable } = data
+    a = firstVariable
+    b = secondVariable
+    operation = data.operation
+    result = data.result
+    inputA.value = a
+    inputB.value = b
+    document.getElementById(operation).focus()
+    document.getElementById('result').value = result
+  })
+})
 
 document.getElementById('plus').addEventListener('click', function(event) {
   operation = event.target.id
@@ -48,6 +72,19 @@ document.getElementById('save').addEventListener('click', () => {
   try {
     const result = document.getElementById('result').value
     const content = JSON.stringify({ a, b, operation, result })
+    if (isCloudSave) {
+      const username = document.getElementById('user').innerText
+      const saveContent = {
+        firstVariable: a,
+        secondVariable: b,
+        operation,
+        result,
+        username
+      }
+      saveToCloud(JSON.stringify(saveContent))
+      return
+    }
+
     dialog.showSaveDialog((filename) => {
       if (filename === undefined) {
         alert('Please select the file!')
@@ -69,6 +106,15 @@ document.getElementById('save').addEventListener('click', () => {
 
 document.getElementById('load').addEventListener('click', () => {
   try {
+    if (isCloudSave) {
+      ipcRenderer.send('create-window-data')
+      ipcRenderer.on('trigger-load-data', () => {
+        loadFromCloud()
+        // ipcRenderer.send('send-load-data', loadedData)
+      })
+      return
+    }
+
     dialog.showOpenDialog((fileNames) => {
       if (fileNames === undefined) {
         alert('Please select the file!')
@@ -89,28 +135,15 @@ document.getElementById('load').addEventListener('click', () => {
 })
 
 document.getElementById('cloud-save').addEventListener('change', function() {
-  console.log('Checked: ', this.checked)
+  isCloudSave = this.checked
 })
 
-function sum(x, y) {
-  return x + y
-}
+const sum = (x, y) => x + y
+const minus = (x, y) => x - y
+const multiple = (x, y) => x * y
+const divide = (x, y) => x / y
+const pow = (x, y) => Math.pow(x, y)
 
-function minus(x, y) {
-  return x - y
-}
-
-function multiple(x, y) {
-  return x * y
-}
-
-function divide(x, y) {
-  return x/y
-}
-
-function pow(x, y) {
-  return Math.pow(x, y)
-}
 
 function setResult(result) {
   document.getElementById('result').value = result
@@ -120,6 +153,14 @@ function reset() {
   document.getElementById('a').value = ''
   document.getElementById('b').value = ''
   document.getElementById('result').value = ''
+  document.getElementById('cloud-save').checked = false
+  document.getElementById('plus').blur()
+  document.getElementById('minus').blur()
+  document.getElementById('multiple').blur()
+  document.getElementById('divide').blur()
+  document.getElementById('pow').blur()
+  document.getElementById('load').blur()
+  document.getElementById('save').blur()
 }
 
 function setLoadFile(data) {
@@ -130,4 +171,17 @@ function setLoadFile(data) {
   inputA.value = a
   inputB.value = b
   document.getElementById('result').value = result
+}
+
+function loadFromCloud() {
+  const user = document.getElementById('user').innerText
+  axios.get(loadURL + `/${user}`).then(({data}) => {
+    ipcRenderer.send('send-load-data', data)
+  })
+}
+
+function saveToCloud(data) {
+  axios.post(saveURL, data).then(({data}) => {
+    alert('Save complete!')
+  })
 }

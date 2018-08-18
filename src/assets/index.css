@@ -1,0 +1,9 @@
+.wrap-user {
+  display: flex;
+  align-items: center;
+  background-color: salmon
+}
+
+.wrap-user > p {
+  color: white;
+}
