@@ -2,6 +2,10 @@
 
 ## How to use this application
 
+```
+git clone && npm install
+```
+
 You can insert number to the input and use math operation to calculate result.
 
 You can choose to save/load on local machine or providing cloud by select cloud drive checkbox.
